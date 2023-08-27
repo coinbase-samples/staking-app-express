@@ -1,0 +1,6 @@
+version: v1
+plugins:
+  - name: ts
+    out: ./src/gen/typescript
+    opt:
+      - paths=source_relative
