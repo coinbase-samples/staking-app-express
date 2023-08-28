@@ -1,0 +1,20 @@
+/* eslint-disable */
+// @ts-nocheck
+/*
+* This file is a generated Typescript file for GRPC Gateway, DO NOT MODIFY
+*/
+export type Network = {
+  name?: string
+  isMainnet?: boolean
+}
+
+export type ListNetworksRequest = {
+  parent?: string
+  pageSize?: number
+  pageToken?: string
+}
+
+export type ListNetworksResponse = {
+  networks?: Network[]
+  nextPageToken?: string
+}

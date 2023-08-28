@@ -9,6 +9,7 @@ class StakingApi {
   private constructor() {
     let apiKey = new ApiKey();
     this.authenticator = new Authenticator(apiKey);
+    this.client = new StakingServiceClient();
   }
 
   static getInstance() {

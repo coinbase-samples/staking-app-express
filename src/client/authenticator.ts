@@ -32,7 +32,7 @@ export class Authenticator {
     this.apiKey = apiKey;
   }
 
-  async buildJwt(service: string, uri: string): Promise<string> {
+  async buildJwt(uri: string): Promise<string> {
     try {
       const keyObject = createPrivateKey(this.apiKey.privateKey);
 
@@ -41,15 +41,15 @@ export class Authenticator {
         sub: this.apiKey.name,
         exp: Math.floor(Date.now() / 1000) + 60 * 60,
         nbf: Math.floor(Date.now() / 1000),
-        uri: uri,
+        uri: uri, // needs to be https://api.developer.coinbase.com/staking/api/v1alpha1/protocols like that
       };
 
       const sig = new jose.SignJWT(claims)
-        .setIssuer("nick")
-        .setSubject(this.apiKey.name)
-        .setExpirationTime("1h")
+        .setIssuer("coinbase-cloud") // this needs to always be set to this
+        .setSubject(this.apiKey.name) // max of 5m, 1m is fine as you need a new JWT for each request
+        .setExpirationTime("1m")
         .setNotBefore(Math.floor(Date.now() / 1000))
-        .setAudience(service);
+        .setAudience("staking");
       sig.setProtectedHeader({ alg: "ES256" });
       const out = await sig.sign(keyObject);
       return out;
