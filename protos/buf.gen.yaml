@@ -1,6 +1,8 @@
 version: v1
 plugins:
   - name: ts
-    out: ./src/gen/typescript
+    out: ../src/gen
     opt:
       - paths=source_relative
+      - import_style=commonjs
+      - service=grpc-node
