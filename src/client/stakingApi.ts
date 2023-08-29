@@ -1,41 +1,50 @@
-import { readFileSync } from "fs";
-import { StakingService } from "../gen/coinbase/staking/v1alpha1/api.pb";
-import { APIKey, Authenticator } from "./authenticator";
+import * as Staking from "../generated/api/coinbase/staking/v1alpha1";
+import { HttpRequestHandler } from "./http";
+import { Authenticator } from "../auth";
 
-class StakingApi {
-  private static _instance: StakingApi;
-  public readonly authenticator: Authenticator;
-  public readonly client: StakingService;
+/**
+ * staking is the name of the service used by the JWT auth
+ */
+const stakingServiceName = "staking";
 
-  private constructor() {
-    const apiKeyBlob = readFileSync(".coinbase_cloud_api_key.json", "utf-8");
-    const apiKeyJson = JSON.parse(apiKeyBlob);
+export class StakingServiceClient {
+  #isInitialized: boolean;
+  #stakingClient: Staking.StakingService;
 
-    let name = "";
-    if (apiKeyJson["name"]) {
-      name = apiKeyJson["name"];
-    }
+  constructor(hostname: string, authenticator: Authenticator | undefined) {
+    const handler = new HttpRequestHandler(
+      hostname,
+      stakingServiceName,
+      authenticator
+    );
 
-    let privateKey = "";
-    if (apiKeyJson["privateKey"]) {
-      privateKey = apiKeyJson["privateKey"];
-    }
-    let apiKey: APIKey = {
-      name,
-      privateKey,
-    };
-    this.authenticator = new Authenticator(apiKey);
-    this.client = new StakingService();
+    this.#stakingClient = Staking.createStakingServiceClient(
+      handler.requestHandler
+    );
+    this.#isInitialized = true;
   }
 
-  static getInstance() {
-    if (this._instance) {
-      return this._instance;
+  /**
+   * If the service has been successfully initialized.
+   * @returns True if the service is initialized, false otherwise.
+   */
+  isInitialized(): boolean {
+    return this.#isInitialized;
+  }
+
+  async ListProtocols(
+    pageSize: number | undefined,
+    pageToken: string | undefined
+  ): Promise<Staking.ListProtocolsResponse> {
+    if (!this.isInitialized) {
+      return Promise.reject(new Error("staking service is not initialized"));
     }
 
-    this._instance = new StakingApi();
-    return this._instance;
+    const listProtocolsRequest: Staking.ListProtocolsRequest = {
+      pageSize,
+      pageToken,
+    };
+
+    return await this.#stakingClient.ListProtocols(listProtocolsRequest);
   }
 }
-
-export default StakingApi;

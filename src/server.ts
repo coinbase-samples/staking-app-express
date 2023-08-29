@@ -1,7 +1,6 @@
 import express from "express";
 import kilnRoutes from "./routes/kiln";
-import StakingApi from "./client/stakingApi";
-import { Api, HttpResponse } from "./gen/staking_api";
+import StakingApi from "./auth/stakingApi";
 
 const app = express();
 const PORT = 3000;
