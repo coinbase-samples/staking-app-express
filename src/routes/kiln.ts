@@ -1,5 +1,4 @@
 import { Router, Request, Response } from "express";
-import { Authenticator, ApiKey } from "../client/authenticator";
 
 const router = Router();
 
