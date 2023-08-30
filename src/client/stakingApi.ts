@@ -1,6 +1,17 @@
-import * as Staking from "../generated/api/coinbase/staking/v1alpha1";
-import { HttpRequestHandler } from "./http";
 import { Authenticator } from "../auth";
+import {
+  Api,
+  V1Alpha1EthereumKilnStakingParameters,
+  V1Alpha1ListActionsResponse,
+  V1Alpha1ListNetworksResponse,
+  V1Alpha1ListProtocolsResponse,
+  V1Alpha1ListValidatorsResponse,
+  V1Alpha1Workflow,
+} from "../gen/staking_api";
+import {
+  checkProtocolNetworkParentRegex,
+  checkProtocolParentRegex,
+} from "../utils";
 
 /**
  * staking is the name of the service used by the JWT auth
@@ -8,43 +19,127 @@ import { Authenticator } from "../auth";
 const stakingServiceName = "staking";
 
 export class StakingServiceClient {
-  #isInitialized: boolean;
-  #stakingClient: Staking.StakingService;
+  authenticator: Authenticator;
 
-  constructor(hostname: string, authenticator: Authenticator | undefined) {
-    const handler = new HttpRequestHandler(
-      hostname,
+  constructor(authenticator: Authenticator) {
+    this.authenticator = authenticator;
+  }
+
+  async createApiClient(
+    method: string,
+    endpoint: string
+  ): Promise<Api<unknown>> {
+    const jwt = await this.authenticator.buildJWT(
       stakingServiceName,
-      authenticator
+      `${method} api.developer.coinbase.com/staking/api/v1alpha1/${endpoint}`
     );
 
-    this.#stakingClient = Staking.createStakingServiceClient(
-      handler.requestHandler
-    );
-    this.#isInitialized = true;
+    return new Api({
+      baseApiParams: {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      },
+    });
   }
 
-  /**
-   * If the service has been successfully initialized.
-   * @returns True if the service is initialized, false otherwise.
-   */
-  isInitialized(): boolean {
-    return this.#isInitialized;
-  }
-
-  async ListProtocols(
-    pageSize: number | undefined,
-    pageToken: string | undefined
-  ): Promise<Staking.ListProtocolsResponse> {
-    if (!this.isInitialized) {
-      return Promise.reject(new Error("staking service is not initialized"));
-    }
-
-    const listProtocolsRequest: Staking.ListProtocolsRequest = {
+  async listProtocols(
+    pageSize?: number,
+    pageToken?: string
+  ): Promise<V1Alpha1ListProtocolsResponse> {
+    const client = await this.createApiClient("GET", "protocols");
+    const response = await client.api.listProtocols({
       pageSize,
       pageToken,
+    });
+    return response.data;
+  }
+
+  async listNetworks(
+    parent: string,
+    pageSize?: number,
+    pageToken?: string
+  ): Promise<V1Alpha1ListNetworksResponse> {
+    if (!checkProtocolParentRegex(parent)) {
+      return Promise.reject("field 'parent' did not match expected format");
+    }
+
+    const client = await this.createApiClient("GET", `${parent}/networks`);
+
+    const response = await client.api.listNetworks(parent, {
+      pageSize,
+      pageToken,
+    });
+
+    return response.data;
+  }
+
+  async listActions(
+    parent: string,
+    pageSize?: number,
+    pageToken?: string
+  ): Promise<V1Alpha1ListActionsResponse> {
+    if (!checkProtocolNetworkParentRegex(parent)) {
+      return Promise.reject("field 'parent' did not match expected format");
+    }
+
+    const client = await this.createApiClient("GET", `${parent}/actions`);
+
+    const response = await client.api.listActions(parent, {
+      pageSize,
+      pageToken,
+    });
+    return response.data;
+  }
+
+  async listValidators(
+    parent: string,
+    pageSize?: number,
+    pageToken?: string
+  ): Promise<V1Alpha1ListValidatorsResponse> {
+    if (!checkProtocolNetworkParentRegex(parent)) {
+      return Promise.reject("field 'parent' did not match expected format");
+    }
+
+    const client = await this.createApiClient("GET", `${parent}/validators`);
+
+    const response = await client.api.listActions(parent, {
+      pageSize,
+      pageToken,
+    });
+    return response.data;
+  }
+
+  async CreateWorkflow(
+    projectId: string,
+    workflow: V1Alpha1Workflow
+  ): Promise<V1Alpha1Workflow> {
+    const client = await this.createApiClient("POST", `${projectId}/workflow`);
+
+    const response = await client.api.createWorkflow(projectId, workflow);
+    return response.data;
+  }
+
+  async CreateKilnStakeWorkflow(
+    projectId: string,
+    stakerAddress: string,
+    integratorContractAddress: string,
+    value: string
+  ): Promise<V1Alpha1Workflow> {
+    const ethKilnStakingParameters: V1Alpha1EthereumKilnStakingParameters = {
+      stakeParameters: {
+        stakerAddress,
+        integratorContractAddress,
+        amount: {
+          value,
+          currency: "ETH",
+        },
+      },
     };
 
-    return await this.#stakingClient.ListProtocols(listProtocolsRequest);
+    return this.CreateWorkflow(projectId, {
+      action: "protocols/ethereum_kiln/networks/mainnet/actions/stake",
+      ethereumKilnStakingParameters: ethKilnStakingParameters,
+    });
   }
 }
