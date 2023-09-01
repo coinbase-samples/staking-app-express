@@ -31,10 +31,11 @@ export class StakingServiceClient {
   ): Promise<Api<unknown>> {
     const jwt = await this.authenticator.buildJWT(
       stakingServiceName,
-      `${method} api.developer.coinbase.com/staking/api/v1alpha1/${endpoint}`
+      `${method} cloud-api-dev.cbhq.net/staking/api/v1alpha1/${endpoint}`
     );
 
     return new Api({
+      baseUrl: "https://cloud-api-dev.cbhq.net/staking",
       baseApiParams: {
         headers: {
           Authorization: `Bearer ${jwt}`,
@@ -110,17 +111,17 @@ export class StakingServiceClient {
     return response.data;
   }
 
-  async CreateWorkflow(
+  async createWorkflow(
     projectId: string,
     workflow: V1Alpha1Workflow
   ): Promise<V1Alpha1Workflow> {
-    const client = await this.createApiClient("POST", `${projectId}/workflow`);
+    const client = await this.createApiClient("POST", `${projectId}/workflows`);
 
     const response = await client.api.createWorkflow(projectId, workflow);
     return response.data;
   }
 
-  async CreateKilnStakeWorkflow(
+  async createKilnStakeWorkflow(
     projectId: string,
     stakerAddress: string,
     integratorContractAddress: string,
@@ -137,9 +138,30 @@ export class StakingServiceClient {
       },
     };
 
-    return this.CreateWorkflow(projectId, {
-      action: "protocols/ethereum_kiln/networks/mainnet/actions/stake",
+    return this.createWorkflow(projectId, {
+      action: "protocols/ethereum_kiln/networks/goerli/actions/stake",
       ethereumKilnStakingParameters: ethKilnStakingParameters,
     });
+  }
+
+  async getWorkflow(name: string): Promise<V1Alpha1Workflow> {
+    const client = await this.createApiClient("GET", `${name}`);
+
+    const response = await client.api.getWorkflow(name);
+    return response.data;
+  }
+
+  async performWorkflowStep(
+    name: string,
+    stepIndex: number,
+    signedTx: string
+  ): Promise<V1Alpha1Workflow> {
+    const client = await this.createApiClient("POST", `${name}/step`);
+
+    const response = await client.api.updateWorkflow(name, {
+      step: stepIndex,
+      signedTx,
+    });
+    return response.data;
   }
 }
