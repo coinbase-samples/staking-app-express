@@ -4,7 +4,7 @@ import { APIKey, Authenticator } from "../auth";
 import { readFileSync } from "fs";
 import { V1Alpha1Workflow, V1Alpha1WorkflowState } from "../gen/staking_api";
 import { Signer } from "../signer";
-import { ethers } from "ethers";
+import { Transaction, ethers } from "ethers";
 
 const router = Router();
 
@@ -55,43 +55,55 @@ router.get("/stakingTest", async (req: Request, res: Response) => {
   workflow = await client.getWorkflow(workflow.name!);
   console.log("workflow name ", workflow.name);
 
-  while (
-    workflow.state !== V1Alpha1WorkflowState.STATE_COMPLETED &&
-    workflow.state !== V1Alpha1WorkflowState.STATE_FAILED
-  ) {
-    var step = workflow.steps![workflow.currentStepId!];
+  try {
+    while (
+      workflow.state !== V1Alpha1WorkflowState.STATE_COMPLETED &&
+      workflow.state !== V1Alpha1WorkflowState.STATE_FAILED
+    ) {
+      var step = workflow.steps![workflow.currentStepId!];
 
-    if (workflow.state === V1Alpha1WorkflowState.STATE_WAITING_FOR_SIGNING) {
-      var unsignedTx = step.txStepOutput!.unsignedTx!;
+      if (workflow.state === V1Alpha1WorkflowState.STATE_WAITING_FOR_SIGNING) {
+        var unsignedTxByteString = step.txStepOutput!.unsignedTx!;
 
-      console.log("unsigned tx: ", unsignedTx);
+        console.log("unsigned tx: ", unsignedTxByteString);
 
-      const signer = new Signer();
-      var signedTx = await signer.signTransaction(unsignedTx);
+        const signer = new Signer();
+        const unsignedTxBytes = Buffer.from(unsignedTxByteString, "hex");
+        console.log(unsignedTxBytes);
+        const unsignedTxHex = ethers.hexlify(unsignedTxBytes);
+        console.log(unsignedTxHex);
+        const txRequest: Transaction = ethers.Transaction.from(unsignedTxHex);
+        console.log(JSON.stringify(txRequest.toJSON()));
+        txRequest.signature = null;
+        var signedTx = await signer.signTransaction(txRequest);
 
-      console.log("signed tx: ", signedTx);
+        console.log("signed tx: ", signedTx);
 
-      workflow = await client.performWorkflowStep(
-        workflow.name!,
-        workflow.currentStepId!,
-        signedTx
-      );
-    } else if (workflow.state === V1Alpha1WorkflowState.STATE_IN_PROGRESS) {
-      if (step.txStepOutput) {
-        console.log("TX Hash: ", step.txStepOutput!.txHash);
-      } else if (step.waitStepOutput) {
-        console.log(
-          `Waiting for ${
-            Number(step.waitStepOutput.target!) -
-            Number(step.waitStepOutput.current!)
-          } ${step.waitStepOutput.unit} to complete...`
+        workflow = await client.performWorkflowStep(
+          workflow.name!,
+          workflow.currentStepId!,
+          signedTx
         );
+      } else if (workflow.state === V1Alpha1WorkflowState.STATE_IN_PROGRESS) {
+        if (step.txStepOutput) {
+          console.log("TX Hash: ", step.txStepOutput!.txHash);
+        } else if (step.waitStepOutput) {
+          console.log(
+            `Waiting for ${
+              Number(step.waitStepOutput.target!) -
+              Number(step.waitStepOutput.current!)
+            } ${step.waitStepOutput.unit} to complete...`
+          );
+        }
       }
+
+      workflow = await client.getWorkflow(workflow.name!);
+      console.log(workflow);
+
+      await delay(5000);
     }
-
-    workflow = await client.getWorkflow(workflow.name!);
-
-    await delay(5000);
+  } catch (e) {
+    console.log(e);
   }
   console.log("success");
 });

@@ -6,8 +6,7 @@ export class Signer {
     this.signer = new ethers.Wallet(process.env.PRIVATE_KEY!);
   }
 
-  async signTransaction(unsignedTx: string) {
-    let unsignedTxRequest: TransactionRequest = JSON.parse(unsignedTx);
-    return this.signer.signTransaction(unsignedTxRequest);
+  async signTransaction(txRequest: TransactionRequest) {
+    return this.signer.signTransaction(txRequest);
   }
 }

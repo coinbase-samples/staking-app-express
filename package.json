@@ -21,6 +21,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "@ethereumjs/tx": "^5.0.0",
     "ethers": "^6.7.1",
     "express": "^4.18.2",
     "jose": "^4.14.4"
