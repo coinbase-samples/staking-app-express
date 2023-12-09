@@ -1,10 +1,8 @@
 import { Router, Request, Response } from "express";
-import { StakingServiceClient } from "../client";
-import { APIKey, Authenticator } from "../auth";
 import { readFileSync } from "fs";
-import { V1Alpha1Workflow, V1Alpha1WorkflowState } from "../gen/staking_api";
 import { Signer } from "../signer";
 import { Transaction, ethers } from "ethers";
+import { StakingServiceClient, V1Alpha1Workflow, V1Alpha1WorkflowState } from "staking-client-library-ts";
 
 const router = Router();
 
@@ -12,7 +10,7 @@ router.get("/stake", (req: Request, res: Response) => {
   res.send("connected");
 });
 
-router.get("/stakingTest", async (req: Request, res: Response) => {
+router.post("/stakingTest", async (req: Request<{}, {}>, res: Response) => {
   const apiKeyBlob = readFileSync(".coinbase_cloud_api_key.json", "utf-8");
   const apiKeyJson = JSON.parse(apiKeyBlob);
 
@@ -25,11 +23,11 @@ router.get("/stakingTest", async (req: Request, res: Response) => {
   if (apiKeyJson["privateKey"]) {
     privateKey = apiKeyJson["privateKey"];
   }
-  let apiKey: APIKey = {
+  let config = {
     name,
     privateKey,
   };
-  const client = new StakingServiceClient(new Authenticator(apiKey));
+  const client = new StakingServiceClient();
   console.log("created new client");
 
   var listProtocolsOutput = await client.listProtocols();
@@ -37,11 +35,21 @@ router.get("/stakingTest", async (req: Request, res: Response) => {
   console.log("List Protocols ", listProtocolsOutput);
 
   var workflow: V1Alpha1Workflow | void = await client
-    .createKilnStakeWorkflow(
+    .createWorkflow(
       "projects/e28ffb06-f37a-44b1-ba4d-df05f10178d9",
-      "0x2268c551F13F27754355394262c5f2B30Eb53755",
-      "0x0a868e4e07a0a00587a783720b76fad9f7eea009",
-      "100000000000000"
+      {
+        action: "protocols/ethereum_kiln/networks/mainnet/actions/stake",
+        ethereumKilnStakingParameters: {
+          stakeParameters: {
+            stakerAddress:       "0x2268c551F13F27754355394262c5f2B30Eb53755",
+            integratorContractAddress: "0x0a868e4e07a0a00587a783720b76fad9f7eea009",
+            amount: {
+              value: "100000000000000",
+              currency: "ETH",
+          }
+        }
+      }
+      }
     )
     .catch((e) => {
       console.log(e);

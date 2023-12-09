@@ -1,4 +1,6 @@
-.coinbase_cloud_api_key.json
+.coinbase_cloud_api_key*.json
 
 .env
 .envrc
+
+dist/
