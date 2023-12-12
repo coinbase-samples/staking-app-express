@@ -1,32 +1,12 @@
 import { Router, Request, Response } from "express";
 import { readFileSync } from "fs";
-import { Signer } from "../signer";
+import { Signer } from "../signer/signer";
 import { Transaction, ethers } from "ethers";
 import { StakingServiceClient, V1Alpha1Workflow, V1Alpha1WorkflowState } from "staking-client-library-ts";
 
-const router = Router();
+const kilnRouter = Router();
 
-router.get("/stake", (req: Request, res: Response) => {
-  res.send("connected");
-});
-
-router.post("/stakingTest", async (req: Request<{}, {}>, res: Response) => {
-  const apiKeyBlob = readFileSync(".coinbase_cloud_api_key.json", "utf-8");
-  const apiKeyJson = JSON.parse(apiKeyBlob);
-
-  let name = "";
-  if (apiKeyJson["name"]) {
-    name = apiKeyJson["name"];
-  }
-
-  let privateKey = "";
-  if (apiKeyJson["privateKey"]) {
-    privateKey = apiKeyJson["privateKey"];
-  }
-  let config = {
-    name,
-    privateKey,
-  };
+kilnRouter.post("/initiate", async (req: Request<{}, {}>, res: Response) => {
   const client = new StakingServiceClient();
   console.log("created new client");
 
@@ -120,4 +100,4 @@ function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export default router;
+export default kilnRouter;
