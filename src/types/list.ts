@@ -1,4 +1,5 @@
 export interface ListActionsRequest {
+  protocol: string;
   network: string;
 }
 
