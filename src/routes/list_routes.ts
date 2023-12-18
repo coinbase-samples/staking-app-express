@@ -22,12 +22,17 @@ router.get("/protocols", async (req: Request<any>, res: Response<any>) => {
 router.get(
   "/protocols/:protocol/networks",
   async (req: Request<ListNetworksRequest, {}, {}, {}>, res: Response) => {
-    const client = new StakingServiceClient();
     const { params } = req;
+    if (!params.protocol || params.protocol == "") {
+      return res.status(400).send("protocol not provided");
+    }
+
+    const client = new StakingServiceClient();
     try {
       const resp = await client.listNetworks(params.protocol);
       return res.json(resp);
     } catch (err) {
+      console.error(err);
       if (err instanceof Response) {
         return res.status(err.status).send(err);
       }
@@ -41,12 +46,21 @@ router.get(
 router.get(
   "/protocols/:protocol/networks/:network/actions",
   async (req: Request<ListActionsRequest, {}, {}, {}>, res: Response) => {
-    const client = new StakingServiceClient();
     const { params } = req;
+    if (!params.protocol || params.protocol == "") {
+      return res.status(400).send("protocol not provided");
+    }
+
+    if (!params.network || params.network == "") {
+      return res.status(400).send("network not provided");
+    }
+
+    const client = new StakingServiceClient();
     try {
       const resp = await client.listActions(params.protocol, params.network);
       return res.json(resp);
     } catch (err) {
+      console.error(err);
       if (err instanceof Response) {
         return res.status(err.status).send(err);
       }

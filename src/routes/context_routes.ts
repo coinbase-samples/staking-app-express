@@ -10,16 +10,12 @@ router.get(
     req: Request<{}, {}, {}, ViewStakingContextQueryParams>,
     res: Response<any>,
   ) => {
-    const client = new StakingServiceClient();
     const { query } = req;
-
+    const client = new StakingServiceClient();
     try {
       const resp = await client.viewStakingContext({
         address: query.address,
-        network: query.network,
-        ethereumKilnStakingContextParameters: {
-          integratorContractAddress: query.integrationContractAddress,
-        },
+        network: query.network, 
       });
       return res.status(200).json(resp);
     } catch (err) {
@@ -28,7 +24,7 @@ router.get(
       }
       return res
         .status(500)
-        .send("error calling createWorkflow: " + (err as Error).toString());
+        .send("error calling ViewStakingContext " + JSON.stringify(err));
     }
   },
 );

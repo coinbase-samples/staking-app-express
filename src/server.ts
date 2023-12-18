@@ -5,7 +5,7 @@ import workflowRoutes from "./routes/workflow_routes";
 
 const app = express();
 app.use(express.json());
-const PORT = 3000;
+const PORT = 3030;
 const BASE_API = "/staking/api/v1alpha1";
 
 app.get("/", (req, res) => {
