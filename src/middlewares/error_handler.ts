@@ -5,4 +5,7 @@ export const errorHandler = (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {};
+) => {
+  console.error(err.stack);
+  return res.status(500).send(err);
+};

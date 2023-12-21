@@ -1,5 +1,6 @@
 export interface BasePartialEthStakingRequest {
   stakerAddress: string;
+  network: string;
   workflowName?: string;
 }
 

@@ -31,7 +31,7 @@ router.post(
 
     const createStakeWorkflow = await client.EthereumKiln.stake(
       process.env.CB_PROJECT_ID!,
-      process.env.NETWORK!,
+      body.network,
       false,
       body.stakerAddress,
       process.env.INTEGRATOR_CONTRACT_ADDRESS!,
@@ -76,7 +76,7 @@ router.post(
 
     const claimRewardsWorkflow = await client.EthereumKiln.claimStake(
       process.env.CB_PROJECT_ID!,
-      process.env.NETWORK!,
+      body.network,
       false,
       body.stakerAddress,
       process.env.INTEGRATOR_CONTRACT_ADDRESS!,
