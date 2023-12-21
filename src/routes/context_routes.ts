@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
-import { StakingServiceClient } from "staking-client-library-ts";
 import { ViewStakingContextQueryParams } from "../types/context";
+import { StakingServiceClient } from "@coinbase/staking-client-library-ts";
 
 const router = Router();
 
@@ -15,7 +15,7 @@ router.get(
     try {
       const resp = await client.viewStakingContext({
         address: query.address,
-        network: query.network, 
+        network: query.network,
       });
       return res.status(200).json(resp);
     } catch (err) {

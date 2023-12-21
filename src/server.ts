@@ -1,7 +1,7 @@
 import express from "express";
 import contextRoutes from "./routes/context_routes";
 import listRoutes from "./routes/list_routes";
-import workflowRoutes from "./routes/workflow_routes";
+import partialEthRoutes from "./routes/partial_eth_staking";
 
 const app = express();
 app.use(express.json());
@@ -16,7 +16,7 @@ app.get("/health", (req, res) => {
 });
 
 app.use(`${BASE_API}`, listRoutes);
-app.use(`${BASE_API}`, workflowRoutes);
+app.use(`${BASE_API}`, partialEthRoutes);
 app.use(`${BASE_API}`, contextRoutes);
 
 app.listen(PORT, async () => {

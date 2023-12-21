@@ -1,6 +1,7 @@
 import { Request, Response, Router } from "express";
-import { StakingServiceClient } from "staking-client-library-ts";
+import { StakingServiceClient } from "@coinbase/staking-client-library-ts";
 import { ListActionsRequest, ListNetworksRequest } from "../types/list";
+import { logger } from "../utils/logger";
 
 const router = Router();
 
@@ -32,10 +33,7 @@ router.get(
       const resp = await client.listNetworks(params.protocol);
       return res.json(resp);
     } catch (err) {
-      console.error(err);
-      if (err instanceof Response) {
-        return res.status(err.status).send(err);
-      }
+      console.log(err);
       return res
         .status(500)
         .send("error calling listNetworks: " + (err as Error).toString());

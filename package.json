@@ -1,6 +1,6 @@
 {
-  "name": "staking-proxy-ts",
-  "version": "1.0.0",
+  "name": "@coinbase-samples/staking-app-express",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -18,23 +18,24 @@
     "@babel/preset-env": "^7.23.5",
     "@types/express": "^4.17.17",
     "@types/node": "^20.5.6",
-    "@types/node-jose": "^1.1.10",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.0.1",
-    "node-jose": "^2.2.0",
     "nodemon": "^3.0.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "@coinbase/staking-client-library-ts": "^0.3.2",
     "@ethereumjs/tx": "^5.0.0",
     "class-validator": "^0.14.0",
+    "dotenv": "^16.3.1",
     "ethers": "^6.7.1",
     "express": "^4.18.2",
     "jose": "^4.14.4",
-    "staking-client-library-ts": "file:../../public/staking-client-library-ts"
+    "morgan": "^1.10.0",
+    "winston": "^3.11.0"
   }
 }
