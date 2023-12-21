@@ -1,13 +1,22 @@
-export interface InitiatePartialEthStakingRequest {
+export interface BasePartialEthStakingRequest {
   stakerAddress: string;
+  workflowName?: string;
+}
+
+export interface PartialEthInitiateStakingRequest
+  extends BasePartialEthStakingRequest {
   amount: string;
 }
 
-export interface UnstakePartialEthStakingRequest {
-  stakerAddress: string;
+export interface PartialEthInitiateUnstakeRequest
+  extends BasePartialEthStakingRequest {
   unstakeAmount: string;
 }
 
-export interface ClaimPartialEthRewardsRequest {
-  stakerAddress: string;
+export interface PartialEthClaimRewardsRequest
+  extends BasePartialEthStakingRequest {}
+
+export interface PartialEthViewContextRequest
+  extends BasePartialEthStakingRequest {
+  network: string;
 }

@@ -25,19 +25,12 @@ router.get(
   async (req: Request<ListNetworksRequest, {}, {}, {}>, res: Response) => {
     const { params } = req;
     if (!params.protocol || params.protocol == "") {
-      return res.status(400).send("protocol not provided");
+      res.status(400).send("protocol not provided");
     }
 
     const client = new StakingServiceClient();
-    try {
-      const resp = await client.listNetworks(params.protocol);
-      return res.json(resp);
-    } catch (err) {
-      console.log(err);
-      return res
-        .status(500)
-        .send("error calling listNetworks: " + (err as Error).toString());
-    }
+    const resp = await client.listNetworks(params.protocol);
+    return res.json(resp);
   },
 );
 
@@ -54,18 +47,8 @@ router.get(
     }
 
     const client = new StakingServiceClient();
-    try {
-      const resp = await client.listActions(params.protocol, params.network);
-      return res.json(resp);
-    } catch (err) {
-      console.error(err);
-      if (err instanceof Response) {
-        return res.status(err.status).send(err);
-      }
-      return res
-        .status(500)
-        .send("error calling listActions: " + (err as Error).toString());
-    }
+    const resp = await client.listActions(params.protocol, params.network);
+    return res.json(resp);
   },
 );
 
