@@ -19,7 +19,7 @@ app.get("/health", (req, res) => {
 });
 
 app.use(`${BASE_API}`, listRoutes);
-app.use(`${BASE_API}`, partialEthRoutes);
+app.use(`${BASE_API}/partial-eth`, partialEthRoutes);
 app.use(`${BASE_API}`, contextRoutes);
 
 app.use(pollHandler);

@@ -1,7 +1,6 @@
 import { Request, Response, Router } from "express";
 import { StakingServiceClient } from "@coinbase/staking-client-library-ts";
 import { ListActionsRequest, ListNetworksRequest } from "../types/list";
-import { logger } from "../utils/logger";
 
 const router = Router();
 

@@ -9,8 +9,6 @@ import {
 
 const router = Router();
 
-router.use("/partial-eth");
-
 router.post(
   "/stake",
   async (
