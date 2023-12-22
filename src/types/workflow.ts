@@ -21,3 +21,9 @@ export interface WorkflowSuccessResponse {
   unsignedTransaction?: string;
   transactionHash?: string;
 }
+
+export interface PerformWorkflowStepRequest {
+  workflowId: string;
+  stepIndex: number;
+  data: string;
+}
