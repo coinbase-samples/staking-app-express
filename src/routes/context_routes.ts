@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Coinbase Global, Inc.
+ * Copyright 2023-present Coinbase Global, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 import { Request, Response, Router } from "express";
 import { ViewStakingContextQueryParams } from "../types/context";
 import { StakingServiceClient } from "@coinbase/staking-client-library-ts";
+import { constants } from "http2";
 
 const router = Router();
 
@@ -27,12 +28,11 @@ router.get(
     res: Response<any>,
   ) => {
     const { query } = req;
-    const client = new StakingServiceClient();
-    const resp = await client.viewStakingContext({
+    const resp = await new StakingServiceClient().viewStakingContext({
       address: query.address,
       network: query.network,
     });
-    return res.status(200).json(resp);
+    return res.status(constants.HTTP_STATUS_OK).json(resp);
   },
 );
 

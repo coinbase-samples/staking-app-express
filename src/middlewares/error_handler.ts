@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Coinbase Global, Inc.
+ * Copyright 2023-present Coinbase Global, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 
 import { NextFunction, Request, Response } from "express";
+import { constants } from "http2";
 
 export const errorHandler = (
   err: Error,
@@ -23,5 +24,5 @@ export const errorHandler = (
   next: NextFunction,
 ) => {
   console.error(err.stack);
-  return res.status(500).send(err);
+  return res.status(constants.HTTP_STATUS_BAD_GATEWAY).send(err);
 };

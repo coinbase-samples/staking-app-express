@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Coinbase Global, Inc.
+ * Copyright 2023-present Coinbase Global, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,13 @@
 import { Request, Response, Router } from "express";
 import { StakingServiceClient } from "@coinbase/staking-client-library-ts";
 import { ListActionsRequest, ListNetworksRequest } from "../types/list";
+import { constants } from "http2";
 
 const router = Router();
 
 router.get("/protocols", async (req: Request<any>, res: Response<any>) => {
-  const client = new StakingServiceClient();
-  try {
-    const resp = await client.listProtocols();
-    return res.status(200).json(resp);
-  } catch (err) {
-    if (err instanceof Response) {
-      return res.status(err.status).send(err);
-    }
-    return res
-      .status(500)
-      .send("error calling listProtocols: " + (err as Error).toString());
-  }
+  const resp = await new StakingServiceClient().listProtocols();
+  return res.status(constants.HTTP_STATUS_OK).json(resp);
 });
 
 router.get(
@@ -40,11 +31,12 @@ router.get(
   async (req: Request<ListNetworksRequest, {}, {}, {}>, res: Response) => {
     const { params } = req;
     if (!params.protocol || params.protocol == "") {
-      res.status(400).send("protocol not provided");
+      res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("protocol not provided");
     }
 
-    const client = new StakingServiceClient();
-    const resp = await client.listNetworks(params.protocol);
+    const resp = await new StakingServiceClient().listNetworks(params.protocol);
     return res.json(resp);
   },
 );
@@ -54,15 +46,21 @@ router.get(
   async (req: Request<ListActionsRequest, {}, {}, {}>, res: Response) => {
     const { params } = req;
     if (!params.protocol || params.protocol == "") {
-      return res.status(400).send("protocol not provided");
+      return res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("protocol not provided");
     }
 
     if (!params.network || params.network == "") {
-      return res.status(400).send("network not provided");
+      return res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("network not provided");
     }
 
-    const client = new StakingServiceClient();
-    const resp = await client.listActions(params.protocol, params.network);
+    const resp = await new StakingServiceClient().listActions(
+      params.protocol,
+      params.network,
+    );
     return res.json(resp);
   },
 );
