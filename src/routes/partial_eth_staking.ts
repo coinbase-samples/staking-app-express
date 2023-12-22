@@ -23,7 +23,7 @@ import {
   PartialEthInitiateUnstakeRequest,
 } from "../types/partial_eth";
 import { constants } from "http2";
-import { NextFunction } from "connect";
+import { validateFieldInRequest } from "../utils/utils";
 
 const router = Router();
 
@@ -32,21 +32,12 @@ router.post(
   async (
     req: Request<{}, {}, PartialEthInitiateStakingRequest, {}>,
     res: Response<any>,
-    next: NextFunction,
   ) => {
     const { body } = req;
 
-    if (!body.stakerAddress || body.stakerAddress == "") {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("bad request input: missing staker address");
-    }
-
-    if (!body.amount || body.amount == "") {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("bad request input: missing stake amount");
-    }
+    validateFieldInRequest(res, "staker address", body.stakerAddress);
+    validateFieldInRequest(res, "amount", body.amount);
+    validateFieldInRequest(res, "network", body.network);
 
     const createStakeWorkflow =
       await new StakingServiceClient().EthereumKiln.stake(
@@ -68,6 +59,9 @@ router.post(
     res: Response<any>,
   ) => {
     const { body } = req;
+
+    validateFieldInRequest(res, "staker address", body.stakerAddress);
+    validateFieldInRequest(res, "unstake amount", body.unstakeAmount);
 
     const createUnstakeWorkflow =
       await new StakingServiceClient().EthereumKiln.unstake(
@@ -91,6 +85,9 @@ router.post(
   ) => {
     const { body } = req;
 
+    validateFieldInRequest(res, "staking address", body.stakerAddress);
+    validateFieldInRequest(res, "network", body.network);
+
     const claimRewardsWorkflow =
       await new StakingServiceClient().EthereumKiln.claimStake(
         process.env.CB_PROJECT_ID!,
@@ -110,6 +107,10 @@ router.get(
     res: Response<any>,
   ) => {
     const { params } = req;
+
+    validateFieldInRequest(res, "staker address", params.stakerAddress);
+    validateFieldInRequest(res, "network", params.network);
+
     const contextResponse =
       await new StakingServiceClient().EthereumKiln.viewStakingContext(
         params.stakerAddress,

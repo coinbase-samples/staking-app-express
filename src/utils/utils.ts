@@ -19,6 +19,8 @@ import {
   TxStepOutputState,
   WorkflowStep,
 } from "@coinbase/staking-client-library-ts/dist/gen/coinbase/staking/v1alpha1/workflow.pb";
+import { Response } from "express";
+import { constants } from "http2";
 
 export const extractWorkflowId = (workflowName: string): string => {
   const splitWorkflow = workflowName.split("/");
@@ -43,4 +45,17 @@ export const isTransactionReadyForSigning = (step: WorkflowStep): boolean => {
     isTxStepOutput(step) &&
     TxStepOutputState.STATE_PENDING_SIGNING == step.txStepOutput.state
   );
+};
+
+export const validateFieldInRequest = (
+  res: Response<any>,
+  fieldName: string,
+  field?: string,
+): Response<any> | undefined => {
+  if (!field || field === "") {
+    return res
+      .status(constants.HTTP_STATUS_BAD_REQUEST)
+      .send(`bad request: missing ${fieldName}`);
+  }
+  return undefined;
 };

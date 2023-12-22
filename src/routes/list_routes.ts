@@ -18,6 +18,7 @@ import { Request, Response, Router } from "express";
 import { StakingServiceClient } from "@coinbase/staking-client-library-ts";
 import { ListActionsRequest, ListNetworksRequest } from "../types/list";
 import { constants } from "http2";
+import { validateFieldInRequest } from "../utils/utils";
 
 const router = Router();
 
@@ -30,11 +31,7 @@ router.get(
   "/protocols/:protocol/networks",
   async (req: Request<ListNetworksRequest, {}, {}, {}>, res: Response) => {
     const { params } = req;
-    if (!params.protocol || params.protocol == "") {
-      res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("protocol not provided");
-    }
+    validateFieldInRequest(res, "protocol", params.protocol);
 
     const resp = await new StakingServiceClient().listNetworks(params.protocol);
     return res.json(resp);
@@ -45,17 +42,9 @@ router.get(
   "/protocols/:protocol/networks/:network/actions",
   async (req: Request<ListActionsRequest, {}, {}, {}>, res: Response) => {
     const { params } = req;
-    if (!params.protocol || params.protocol == "") {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("protocol not provided");
-    }
 
-    if (!params.network || params.network == "") {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("network not provided");
-    }
+    validateFieldInRequest(res, "protocol", params.protocol);
+    validateFieldInRequest(res, "network", params.network);
 
     const resp = await new StakingServiceClient().listActions(
       params.protocol,

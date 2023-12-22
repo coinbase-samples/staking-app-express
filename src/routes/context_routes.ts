@@ -18,6 +18,7 @@ import { Request, Response, Router } from "express";
 import { ViewStakingContextQueryParams } from "../types/context";
 import { StakingServiceClient } from "@coinbase/staking-client-library-ts";
 import { constants } from "http2";
+import { validateFieldInRequest } from "../utils/utils";
 
 const router = Router();
 
@@ -28,6 +29,8 @@ router.get(
     res: Response<any>,
   ) => {
     const { query } = req;
+    validateFieldInRequest(res, "address", query.address);
+    validateFieldInRequest(res, "network", query.network);
     const resp = await new StakingServiceClient().viewStakingContext({
       address: query.address,
       network: query.network,
