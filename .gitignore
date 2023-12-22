@@ -1,0 +1,8 @@
+.coinbase_cloud_api_key*.json
+
+.env
+.envrc
+
+dist/
+
+.DS_Store
