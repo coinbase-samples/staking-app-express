@@ -32,11 +32,9 @@ export const pollHandler = async (
 ) => {
   const { body } = req;
 
-  const client = new StakingServiceClient();
-
   const workflowId = extractWorkflowId(body.workflowName);
 
-  const workflow = await client.getWorkflow(
+  const workflow = await new StakingServiceClient().getWorkflow(
     process.env.CB_PROJECT_ID!,
     workflowId,
   );
@@ -54,6 +52,8 @@ export const pollHandler = async (
       output.transactionHash = currentStep.txStepOutput!.txHash!;
       break;
     }
+
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // sleep for 1 second
   }
 
   return res.status(constants.HTTP_STATUS_OK).json(output);
