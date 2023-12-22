@@ -26,4 +26,5 @@ export interface PerformWorkflowStepRequest {
   workflowId: string;
   stepIndex: number;
   data: string;
+  workflowName?: string;
 }

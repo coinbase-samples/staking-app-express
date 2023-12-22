@@ -48,7 +48,8 @@ router.post(
         process.env.INTEGRATOR_CONTRACT_ADDRESS!,
         body.amount,
       );
-    return res.status(constants.HTTP_STATUS_OK).json(createStakeWorkflow);
+    req.body.workflowName = createStakeWorkflow.name!;
+    return res.status(constants.HTTP_STATUS_OK);
   },
 );
 
@@ -73,7 +74,8 @@ router.post(
         body.unstakeAmount,
       );
 
-    return res.status(constants.HTTP_STATUS_OK).send(createUnstakeWorkflow);
+    req.body.workflowName = createUnstakeWorkflow.name!;
+    return res.status(constants.HTTP_STATUS_OK);
   },
 );
 
@@ -96,7 +98,8 @@ router.post(
         body.stakerAddress,
         process.env.INTEGRATOR_CONTRACT_ADDRESS!,
       );
-    return res.status(constants.HTTP_STATUS_OK).send(claimRewardsWorkflow);
+    req.body.workflowName = claimRewardsWorkflow.name!;
+    return res.status(constants.HTTP_STATUS_OK);
   },
 );
 

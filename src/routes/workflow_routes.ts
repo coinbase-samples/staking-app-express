@@ -37,7 +37,8 @@ router.post(
       body.stepIndex,
       body.data,
     );
-    return res.status(constants.HTTP_STATUS_OK).json(resp);
+    req.body.workflowName = resp.name!;
+    return res.status(constants.HTTP_STATUS_OK);
   },
 );
 
