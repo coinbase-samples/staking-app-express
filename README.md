@@ -24,8 +24,7 @@ To start up the local server, run the following:
 npm run start
 ```
 
-This does the following:
-* Starts the application server - default port is 3030
+This starts the application server on `localhost:3030`
 
 ## License
 This library is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE) file.

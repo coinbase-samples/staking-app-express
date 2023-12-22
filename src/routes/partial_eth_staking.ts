@@ -23,7 +23,7 @@ import {
   PartialEthInitiateUnstakeRequest,
 } from "../types/partial_eth";
 import { constants } from "http2";
-import { validateFieldInRequest } from "../utils/utils";
+import { isFieldNotSet } from "../utils/utils";
 import { NextFunction } from "connect";
 
 const router = Router();
@@ -37,9 +37,21 @@ router.post(
   ) => {
     const { body } = req;
 
-    validateFieldInRequest(res, "staker address", body.stakerAddress);
-    validateFieldInRequest(res, "amount", body.amount);
-    validateFieldInRequest(res, "network", body.network);
+    if (isFieldNotSet(body.stakerAddress)) {
+      return res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("staker address is required");
+    }
+    if (isFieldNotSet(body.network)) {
+      return res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("network is required");
+    }
+    if (isFieldNotSet(body.amount)) {
+      return res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("amount is required");
+    }
 
     try {
       const createStakeWorkflow =
@@ -68,14 +80,27 @@ router.post(
   ) => {
     const { body } = req;
 
-    validateFieldInRequest(res, "staker address", body.stakerAddress);
-    validateFieldInRequest(res, "unstake amount", body.unstakeAmount);
+    if (isFieldNotSet(body.stakerAddress)) {
+      return res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("staker address is required");
+    }
+    if (isFieldNotSet(body.network)) {
+      return res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("network is required");
+    }
+    if (isFieldNotSet(body.unstakeAmount)) {
+      return res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("unstake amount is required");
+    }
 
     try {
       const createUnstakeWorkflow =
         await new StakingServiceClient().EthereumKiln.unstake(
           process.env.CB_PROJECT_ID!,
-          process.env.NETWORK!,
+          body.network,
           false,
           body.stakerAddress,
           process.env.INTEGRATOR_CONTRACT_ADDRESS!,
@@ -99,8 +124,16 @@ router.post(
   ) => {
     const { body } = req;
 
-    validateFieldInRequest(res, "staking address", body.stakerAddress);
-    validateFieldInRequest(res, "network", body.network);
+    if (isFieldNotSet(body.stakerAddress)) {
+      return res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("staker address is required");
+    }
+    if (isFieldNotSet(body.network)) {
+      return res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("network is required");
+    }
 
     try {
       const claimRewardsWorkflow =
@@ -128,8 +161,16 @@ router.get(
   ) => {
     const { params } = req;
 
-    validateFieldInRequest(res, "staker address", params.stakerAddress);
-    validateFieldInRequest(res, "network", params.network);
+    if (isFieldNotSet(params.stakerAddress)) {
+      return res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("staker address is required");
+    }
+    if (isFieldNotSet(params.network)) {
+      return res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("network is required");
+    }
 
     try {
       const contextResponse =

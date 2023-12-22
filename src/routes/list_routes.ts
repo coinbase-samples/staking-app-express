@@ -18,7 +18,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import { StakingServiceClient } from "@coinbase/staking-client-library-ts";
 import { ListActionsRequest, ListNetworksRequest } from "../types/list";
 import { constants } from "http2";
-import { validateFieldInRequest } from "../utils/utils";
+import { isFieldNotSet } from "../utils/utils";
 
 const router = Router();
 
@@ -42,7 +42,12 @@ router.get(
     next: NextFunction,
   ) => {
     const { params } = req;
-    validateFieldInRequest(res, "protocol", params.protocol);
+
+    if (isFieldNotSet(params.protocol)) {
+      return res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("protocol is required");
+    }
 
     try {
       const resp = await new StakingServiceClient().listNetworks(
@@ -64,8 +69,16 @@ router.get(
   ) => {
     const { params } = req;
 
-    validateFieldInRequest(res, "protocol", params.protocol);
-    validateFieldInRequest(res, "network", params.network);
+    if (isFieldNotSet(params.protocol)) {
+      return res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("protocol is required");
+    }
+    if (isFieldNotSet(params.network)) {
+      return res
+        .status(constants.HTTP_STATUS_BAD_REQUEST)
+        .send("network is required");
+    }
 
     try {
       const resp = await new StakingServiceClient().listActions(

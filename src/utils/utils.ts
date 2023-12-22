@@ -47,15 +47,6 @@ export const isTransactionReadyForSigning = (step: WorkflowStep): boolean => {
   );
 };
 
-export const validateFieldInRequest = (
-  res: Response<any>,
-  fieldName: string,
-  field?: string,
-): Response<any> | undefined => {
-  if (!field || field === "") {
-    return res
-      .status(constants.HTTP_STATUS_BAD_REQUEST)
-      .send(`bad request: missing ${fieldName}`);
-  }
-  return undefined;
+export const isFieldNotSet = (field?: string): boolean => {
+  return !field || field === "";
 };
