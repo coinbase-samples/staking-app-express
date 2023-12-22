@@ -17,7 +17,7 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { StakingServiceClient } from "@coinbase/staking-client-library-ts";
 import { constants } from "http2";
-import { isFieldNotSet } from "../utils/utils";
+import { validateParamIsSet } from "../utils/utils";
 import { PerformWorkflowStepRequest } from "../types/workflow";
 
 const router = Router();
@@ -30,20 +30,16 @@ router.post(
     next: NextFunction,
   ) => {
     const { body } = req;
-    if (isFieldNotSet(body.workflowId)) {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("workflowId is required");
+    if (!validateParamIsSet(res, "workflowId", body.workflowId)) {
+      return res;
     }
     if (!body.stepIndex) {
       return res
         .status(constants.HTTP_STATUS_BAD_REQUEST)
         .send("stepIndex is required");
     }
-    if (isFieldNotSet(body.data)) {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("data is required");
+    if (!validateParamIsSet(res, "data", body.data)) {
+      return res;
     }
 
     try {

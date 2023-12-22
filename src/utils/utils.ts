@@ -47,6 +47,16 @@ export const isTransactionReadyForSigning = (step: WorkflowStep): boolean => {
   );
 };
 
-export const isFieldNotSet = (field?: string): boolean => {
-  return !field || field === "";
+export const validateParamIsSet = (
+  res: Response<any>,
+  fieldName: string,
+  field?: string,
+): boolean => {
+  if (!field || field === "") {
+    res
+      .status(constants.HTTP_STATUS_BAD_REQUEST)
+      .send(`${fieldName} is required`);
+    return false;
+  }
+  return true;
 };

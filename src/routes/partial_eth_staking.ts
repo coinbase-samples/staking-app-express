@@ -23,7 +23,7 @@ import {
   PartialEthInitiateUnstakeRequest,
 } from "../types/partial_eth";
 import { constants } from "http2";
-import { isFieldNotSet } from "../utils/utils";
+import { validateParamIsSet } from "../utils/utils";
 import { NextFunction } from "connect";
 
 const router = Router();
@@ -37,20 +37,14 @@ router.post(
   ) => {
     const { body } = req;
 
-    if (isFieldNotSet(body.stakerAddress)) {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("staker address is required");
+    if (!validateParamIsSet(res, "stakerAddress", body.stakerAddress)) {
+      return res;
     }
-    if (isFieldNotSet(body.network)) {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("network is required");
+    if (!validateParamIsSet(res, "network", body.network)) {
+      return res;
     }
-    if (isFieldNotSet(body.amount)) {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("amount is required");
+    if (!validateParamIsSet(res, "amount", body.amount)) {
+      return res;
     }
 
     try {
@@ -80,20 +74,14 @@ router.post(
   ) => {
     const { body } = req;
 
-    if (isFieldNotSet(body.stakerAddress)) {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("staker address is required");
+    if (!validateParamIsSet(res, "stakerAddress", body.stakerAddress)) {
+      return res;
     }
-    if (isFieldNotSet(body.network)) {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("network is required");
+    if (!validateParamIsSet(res, "network", body.network)) {
+      return res;
     }
-    if (isFieldNotSet(body.unstakeAmount)) {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("unstake amount is required");
+    if (!validateParamIsSet(res, "unstakeAmount", body.unstakeAmount)) {
+      return res;
     }
 
     try {
@@ -124,15 +112,11 @@ router.post(
   ) => {
     const { body } = req;
 
-    if (isFieldNotSet(body.stakerAddress)) {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("staker address is required");
+    if (!validateParamIsSet(res, "stakerAddress", body.stakerAddress)) {
+      return res;
     }
-    if (isFieldNotSet(body.network)) {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("network is required");
+    if (!validateParamIsSet(res, "network", body.network)) {
+      return res;
     }
 
     try {
@@ -161,15 +145,11 @@ router.get(
   ) => {
     const { params } = req;
 
-    if (isFieldNotSet(params.stakerAddress)) {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("staker address is required");
+    if (!validateParamIsSet(res, "stakerAddress", params.stakerAddress)) {
+      return res;
     }
-    if (isFieldNotSet(params.network)) {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("network is required");
+    if (!validateParamIsSet(res, "network", params.network)) {
+      return res;
     }
 
     try {

@@ -18,7 +18,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import { ViewStakingContextQueryParams } from "../types/context";
 import { StakingServiceClient } from "@coinbase/staking-client-library-ts";
 import { constants } from "http2";
-import { isFieldNotSet } from "../utils/utils";
+import { validateParamIsSet } from "../utils/utils";
 
 const router = Router();
 
@@ -31,15 +31,11 @@ router.get(
   ) => {
     const { query } = req;
 
-    if (isFieldNotSet(query.address)) {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("address is required");
+    if (!validateParamIsSet(res, "address", query.address)) {
+      return res;
     }
-    if (isFieldNotSet(query.network)) {
-      return res
-        .status(constants.HTTP_STATUS_BAD_REQUEST)
-        .send("network is required");
+    if (!validateParamIsSet(res, "network", query.network)) {
+      return res;
     }
 
     try {
