@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Request, Response, Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import { StakingServiceClient } from "@coinbase/staking-client-library-ts";
 import { ListActionsRequest, ListNetworksRequest } from "../types/list";
 import { constants } from "http2";
@@ -22,35 +22,60 @@ import { validateFieldInRequest } from "../utils/utils";
 
 const router = Router();
 
-router.get("/protocols", async (req: Request<any>, res: Response<any>) => {
-  const resp = await new StakingServiceClient().listProtocols();
-  return res.status(constants.HTTP_STATUS_OK).json(resp);
-});
+router.get(
+  "/protocols",
+  async (req: Request<any>, res: Response<any>, next: NextFunction) => {
+    try {
+      const resp = await new StakingServiceClient().listProtocols();
+      return res.status(constants.HTTP_STATUS_OK).json(resp);
+    } catch (e) {
+      return next(e);
+    }
+  },
+);
 
 router.get(
   "/protocols/:protocol/networks",
-  async (req: Request<ListNetworksRequest, {}, {}, {}>, res: Response) => {
+  async (
+    req: Request<ListNetworksRequest, {}, {}, {}>,
+    res: Response,
+    next: NextFunction,
+  ) => {
     const { params } = req;
     validateFieldInRequest(res, "protocol", params.protocol);
 
-    const resp = await new StakingServiceClient().listNetworks(params.protocol);
-    return res.json(resp);
+    try {
+      const resp = await new StakingServiceClient().listNetworks(
+        params.protocol,
+      );
+      return res.json(resp);
+    } catch (e) {
+      return next(e);
+    }
   },
 );
 
 router.get(
   "/protocols/:protocol/networks/:network/actions",
-  async (req: Request<ListActionsRequest, {}, {}, {}>, res: Response) => {
+  async (
+    req: Request<ListActionsRequest, {}, {}, {}>,
+    res: Response,
+    next: NextFunction,
+  ) => {
     const { params } = req;
 
     validateFieldInRequest(res, "protocol", params.protocol);
     validateFieldInRequest(res, "network", params.network);
 
-    const resp = await new StakingServiceClient().listActions(
-      params.protocol,
-      params.network,
-    );
-    return res.json(resp);
+    try {
+      const resp = await new StakingServiceClient().listActions(
+        params.protocol,
+        params.network,
+      );
+      return res.json(resp);
+    } catch (e) {
+      return next(e);
+    }
   },
 );
 

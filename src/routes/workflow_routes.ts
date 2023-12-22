@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Request, Response, Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import { StakingServiceClient } from "@coinbase/staking-client-library-ts";
 import { constants } from "http2";
 import { validateFieldInRequest } from "../utils/utils";
@@ -27,18 +27,24 @@ router.post(
   async (
     req: Request<{}, {}, PerformWorkflowStepRequest, {}>,
     res: Response<any>,
+    next: NextFunction,
   ) => {
     const { body } = req;
     validateFieldInRequest(res, "workflowId", body.workflowId);
     validateFieldInRequest(res, "data", body.data);
-    const resp = await new StakingServiceClient().performWorkflowStep(
-      process.env.CB_PROJECT_ID!,
-      body.workflowId,
-      body.stepIndex,
-      body.data,
-    );
-    req.body.workflowName = resp.name!;
-    return res.status(constants.HTTP_STATUS_OK);
+
+    try {
+      const resp = await new StakingServiceClient().performWorkflowStep(
+        process.env.CB_PROJECT_ID!,
+        body.workflowId,
+        body.stepIndex,
+        body.data,
+      );
+      req.body.workflowName = resp.name!;
+      return res.status(constants.HTTP_STATUS_OK);
+    } catch (e) {
+      return next(e);
+    }
   },
 );
 

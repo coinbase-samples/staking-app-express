@@ -24,6 +24,7 @@ import {
 } from "../types/partial_eth";
 import { constants } from "http2";
 import { validateFieldInRequest } from "../utils/utils";
+import { NextFunction } from "connect";
 
 const router = Router();
 
@@ -32,6 +33,7 @@ router.post(
   async (
     req: Request<{}, {}, PartialEthInitiateStakingRequest, {}>,
     res: Response<any>,
+    next: NextFunction,
   ) => {
     const { body } = req;
 
@@ -39,17 +41,21 @@ router.post(
     validateFieldInRequest(res, "amount", body.amount);
     validateFieldInRequest(res, "network", body.network);
 
-    const createStakeWorkflow =
-      await new StakingServiceClient().EthereumKiln.stake(
-        process.env.CB_PROJECT_ID!,
-        body.network,
-        false,
-        body.stakerAddress,
-        process.env.INTEGRATOR_CONTRACT_ADDRESS!,
-        body.amount,
-      );
-    req.body.workflowName = createStakeWorkflow.name!;
-    return res.status(constants.HTTP_STATUS_OK);
+    try {
+      const createStakeWorkflow =
+        await new StakingServiceClient().EthereumKiln.stake(
+          process.env.CB_PROJECT_ID!,
+          body.network,
+          false,
+          body.stakerAddress,
+          process.env.INTEGRATOR_CONTRACT_ADDRESS!,
+          body.amount,
+        );
+      req.body.workflowName = createStakeWorkflow.name!;
+      return res.status(constants.HTTP_STATUS_OK);
+    } catch (e) {
+      return next(e);
+    }
   },
 );
 
@@ -58,24 +64,29 @@ router.post(
   async (
     req: Request<{}, {}, PartialEthInitiateUnstakeRequest, {}>,
     res: Response<any>,
+    next: NextFunction,
   ) => {
     const { body } = req;
 
     validateFieldInRequest(res, "staker address", body.stakerAddress);
     validateFieldInRequest(res, "unstake amount", body.unstakeAmount);
 
-    const createUnstakeWorkflow =
-      await new StakingServiceClient().EthereumKiln.unstake(
-        process.env.CB_PROJECT_ID!,
-        process.env.NETWORK!,
-        false,
-        body.stakerAddress,
-        process.env.INTEGRATOR_CONTRACT_ADDRESS!,
-        body.unstakeAmount,
-      );
+    try {
+      const createUnstakeWorkflow =
+        await new StakingServiceClient().EthereumKiln.unstake(
+          process.env.CB_PROJECT_ID!,
+          process.env.NETWORK!,
+          false,
+          body.stakerAddress,
+          process.env.INTEGRATOR_CONTRACT_ADDRESS!,
+          body.unstakeAmount,
+        );
 
-    req.body.workflowName = createUnstakeWorkflow.name!;
-    return res.status(constants.HTTP_STATUS_OK);
+      req.body.workflowName = createUnstakeWorkflow.name!;
+      return res.status(constants.HTTP_STATUS_OK);
+    } catch (e) {
+      return next(e);
+    }
   },
 );
 
@@ -84,22 +95,27 @@ router.post(
   async (
     req: Request<{}, {}, PartialEthClaimRewardsRequest, {}>,
     res: Response<any>,
+    next: NextFunction,
   ) => {
     const { body } = req;
 
     validateFieldInRequest(res, "staking address", body.stakerAddress);
     validateFieldInRequest(res, "network", body.network);
 
-    const claimRewardsWorkflow =
-      await new StakingServiceClient().EthereumKiln.claimStake(
-        process.env.CB_PROJECT_ID!,
-        body.network,
-        false,
-        body.stakerAddress,
-        process.env.INTEGRATOR_CONTRACT_ADDRESS!,
-      );
-    req.body.workflowName = claimRewardsWorkflow.name!;
-    return res.status(constants.HTTP_STATUS_OK);
+    try {
+      const claimRewardsWorkflow =
+        await new StakingServiceClient().EthereumKiln.claimStake(
+          process.env.CB_PROJECT_ID!,
+          body.network,
+          false,
+          body.stakerAddress,
+          process.env.INTEGRATOR_CONTRACT_ADDRESS!,
+        );
+      req.body.workflowName = claimRewardsWorkflow.name!;
+      return res.status(constants.HTTP_STATUS_OK);
+    } catch (e) {
+      return next(e);
+    }
   },
 );
 
@@ -108,19 +124,24 @@ router.get(
   async (
     req: Request<PartialEthViewContextRequest, {}, {}, {}>,
     res: Response<any>,
+    next: NextFunction,
   ) => {
     const { params } = req;
 
     validateFieldInRequest(res, "staker address", params.stakerAddress);
     validateFieldInRequest(res, "network", params.network);
 
-    const contextResponse =
-      await new StakingServiceClient().EthereumKiln.viewStakingContext(
-        params.stakerAddress,
-        params.network,
-        process.env.INTEGRATOR_CONTRACT_ADDRESS!,
-      );
-    return res.status(constants.HTTP_STATUS_OK).json(contextResponse);
+    try {
+      const contextResponse =
+        await new StakingServiceClient().EthereumKiln.viewStakingContext(
+          params.stakerAddress,
+          params.network,
+          process.env.INTEGRATOR_CONTRACT_ADDRESS!,
+        );
+      return res.status(constants.HTTP_STATUS_OK).json(contextResponse);
+    } catch (e) {
+      return next(e);
+    }
   },
 );
 

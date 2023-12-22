@@ -23,6 +23,6 @@ export const errorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
-  console.error(err.stack);
+  console.error(err);
   return res.status(constants.HTTP_STATUS_BAD_GATEWAY).send(err);
 };

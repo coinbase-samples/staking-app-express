@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Request, Response, Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import { ViewStakingContextQueryParams } from "../types/context";
 import { StakingServiceClient } from "@coinbase/staking-client-library-ts";
 import { constants } from "http2";
@@ -27,15 +27,20 @@ router.get(
   async (
     req: Request<{}, {}, {}, ViewStakingContextQueryParams>,
     res: Response<any>,
+    next: NextFunction,
   ) => {
     const { query } = req;
     validateFieldInRequest(res, "address", query.address);
     validateFieldInRequest(res, "network", query.network);
-    const resp = await new StakingServiceClient().viewStakingContext({
-      address: query.address,
-      network: query.network,
-    });
-    return res.status(constants.HTTP_STATUS_OK).json(resp);
+    try {
+      const resp = await new StakingServiceClient().viewStakingContext({
+        address: query.address,
+        network: query.network,
+      });
+      return res.status(constants.HTTP_STATUS_OK).json(resp);
+    } catch (e) {
+      return next(e);
+    }
   },
 );
 
